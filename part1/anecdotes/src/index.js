@@ -6,9 +6,25 @@ const Button = (props) => {
   return <button onClick={handleClick}>{text}</button>;
 };
 
+const Vote = (props) =>{
+  const {text, handleClick} = props;
+return <button onClick={handleClick}>{text}</button>
+}
+
 const App = (props) => {
   const {anecdotes} = props
   const [selected, setSelected] = useState(0);
+  const [votes,setVotes] = useState(new Uint8Array(anecdotes.length)); //set initial state for votes as an array full of zeros with the length of anecdotes
+  const [max,setMax] = useState()
+
+  const handleVote = () => {
+    //console.log(votes)
+    const copy = [...votes] //a copy of the votes array gets created
+    copy[selected]+=1 //the selected anecdote vote count gets updated
+    setVotes(copy)//we set the updated array as the new state
+    setMax(copy.indexOf(Math.max(...copy)))//finds and sets the max state to the index of the highest voted anecdote
+    //console.log(max)
+  }
 
   const handleNext = () => {
     let random = Math.floor(Math.random() * anecdotes.length);
@@ -16,11 +32,25 @@ const App = (props) => {
     setSelected(random);
   };
 
+
   return (
     <div>
+      <h1>Anecdote of the day</h1>
       {anecdotes[selected]}
       <br/>
+      <p>Votes: {votes[selected]}</p>
+      <Vote handleClick={handleVote} text="Vote"/>
+      &nbsp;
       <Button handleClick={handleNext} text="Next" />
+      <h2>Anecdote with most votes</h2>
+      {max === undefined ? 
+        <p>No most voted yet!</p> 
+      : <div>
+          {anecdotes[max]}
+          <br/>
+          <br/>
+          Votes: {votes[max]}
+        </div> }
     </div>
   );
 };
