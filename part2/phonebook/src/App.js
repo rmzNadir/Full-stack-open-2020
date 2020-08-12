@@ -1,44 +1,20 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import Persons from "./components/Persons"
 import Filter from "./components/Filter";
 import PersonForm from "./components/PersonForm";
+import Axios from "axios";
 
 const App = () => {
-  const [persons, setPersons] = useState([
-    {
-      name: "Arto Hellas",
-      phone: "1232123589",
-    },
-    {
-      name: "John Cena",
-      phone: "112312313",
-    },
-    {
-      name: "Sentient Rock",
-      phone: "1231534123",
-    },
-    {
-      name: "John Wick",
-      phone: "1892391702",
-    },
-    {
-      name: "Non-Sentient Rock",
-      phone: "123131312456",
-    },
-    {
-      name: "Michael Jordan",
-      phone: "89123891",
-    },
-    {
-      name: "Just Michael",
-      phone: "982973092",
-    },
-  ]);
+  const [persons, setPersons] = useState([]);
 
   const [newName, setNewName] = useState("");
   const [newPhone, setNewPhone] = useState("");
   const [newSearch, setNewSearch] = useState("");
   const [newQuery, setNewQuery] = useState([]);
+
+  useEffect(()=>{
+    Axios.get('http://localhost:3001/persons').then(response => setPersons(response.data))
+  },[])
 
   const handleSubmit = (e) => {
     e.preventDefault();
