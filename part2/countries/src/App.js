@@ -6,12 +6,29 @@ function App() {
   const [countries, setCountries] = useState([])
   const [input, setInput] = useState("")
   const [search, setSearch] = useState([])
+  const [selected, setSelected] = useState("")
 
   useEffect(() => {
     Axios.get('https://restcountries.eu/rest/v2/all').then(response => {
       setCountries(response.data) 
       console.log("request done")})
   },[])
+
+  
+
+  const handleClick = (e) => {
+    const countryId = e.target.id
+    const country = countries.find(country=>country.name===countryId)
+    //console.log(country.name)
+    setSelected(country)
+
+  }
+
+  const handleBack = () => {
+    //console.log("click")
+    //setInput("")
+    setSelected("")
+  }
 
   const handleSearchInput = (e) => {
     setInput(e.target.value)
@@ -22,7 +39,7 @@ function App() {
 
   return (
     <div className="App">
-      <Filter input={input} handleSearchInput={handleSearchInput} search={search}/>
+      <Filter input={input} handleSearchInput={handleSearchInput} search={search} selected={selected} handleClick={handleClick} handleBack={handleBack}/>
     </div>
   );
 }
