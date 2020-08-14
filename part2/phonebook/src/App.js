@@ -1,8 +1,9 @@
 import React, { useState, useEffect } from "react";
-import Persons from "./components/Persons"
+import Persons from "./components/Persons";
 import Filter from "./components/Filter";
 import PersonForm from "./components/PersonForm";
-import Axios from "axios";
+
+import commService from "./services/communication";
 
 const App = () => {
   const [persons, setPersons] = useState([]);
@@ -12,24 +13,37 @@ const App = () => {
   const [newSearch, setNewSearch] = useState("");
   const [newQuery, setNewQuery] = useState([]);
 
-  useEffect(()=>{
-    Axios.get('http://localhost:3001/persons').then(response => setPersons(response.data))
-  },[])
+  useEffect(() => {
+    commService.getAll().then((response) => {
+      setPersons(response.data);
+    });
+  }, []);
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    if (persons.find((person) => person.name === newName)) {
-      alert(`${newName} is already registeded`);
-    } else {
-      const personObject = {
-        name: newName,
-        phone: newPhone,
-      };
 
-      setPersons(persons.concat(personObject));
-      //console.log(persons)
-      setNewName("");
-      setNewPhone("");
+    const personObject = {
+      name: newName,
+      phone: newPhone,
+    };
+
+    if (persons.find((person) => person.name === newName)) {
+      const PersonToUpdate = persons.find((person) => person.name === newName)
+      //console.log(PersonToUpdate)
+      if(window.confirm(`${newName} is already added to phonebook, replace the old number with a new one?`)){
+        commService.update(PersonToUpdate.id,personObject).then(response => {
+          setPersons(persons.map(person => person.id !== PersonToUpdate.id ? person : response.data))
+          setNewName("");
+          setNewPhone("");
+        })
+      }
+    } else {
+      commService.create(personObject).then((response) => {
+        setPersons(persons.concat(response.data));
+        //console.log(persons)
+        setNewName("");
+        setNewPhone("");
+      });
     }
   };
 
@@ -56,6 +70,16 @@ const App = () => {
     setNewQuery(search);
   };
 
+  const handleDelete = (person) =>{
+    //console.log(person)
+    if(window.confirm(`Are you sure you want to delete ${person.name}?`)){
+      commService.remove(person.id).then(
+        setPersons(persons.filter(p => p.id !== person.id)),
+        //console.log(persons)
+      )
+    }
+  }
+
   return (
     <div>
       <h2>Phonebook</h2>
@@ -74,7 +98,7 @@ const App = () => {
         handlePhoneInput={handlePhoneInput}
       />
       <h2>Numbers</h2>
-      <Persons persons={persons}/>
+      <Persons persons={persons} handleDelete={handleDelete} />
     </div>
   );
 };

@@ -6,10 +6,7 @@ const PersonForm = (props) => {
     <form onSubmit={handleSubmit}>
       <div>
         Name: <input value={newName} onChange={handleNameInput} />
-        &nbsp; Number: <input value={newPhone} onChange={handlePhoneInput} />
-      </div>
-      <div>
-        <button type="submit">add</button>
+        &nbsp; Number: <input value={newPhone} onChange={handlePhoneInput} /> <button type="submit">add</button>
       </div>
     </form>
   );
