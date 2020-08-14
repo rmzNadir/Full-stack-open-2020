@@ -2,6 +2,8 @@ import React, { useState, useEffect } from "react";
 import Persons from "./components/Persons";
 import Filter from "./components/Filter";
 import PersonForm from "./components/PersonForm";
+import Notification from "./components/Notification"
+import "./App.css"
 
 import commService from "./services/communication";
 
@@ -12,12 +14,35 @@ const App = () => {
   const [newPhone, setNewPhone] = useState("");
   const [newSearch, setNewSearch] = useState("");
   const [newQuery, setNewQuery] = useState([]);
+  const [notification, setNotification] = useState([])
 
   useEffect(() => {
     commService.getAll().then((response) => {
       setPersons(response.data);
     });
   }, []);
+
+  const successMessage = (operation) => {
+    const successObject = {
+      content: `${newName} successfully ${operation}!`,
+      type: "success"
+    }
+    setNotification(successObject)
+    setTimeout(()=>{
+      setNotification(notification.filter(notification=>notification===successObject))
+    },3000)
+  }
+
+  const errorMessage = (personName) =>{
+    const errorObject = {
+      content: `${personName}'s info has already been removed from the server!`,
+      type: "error"
+    }
+    setNotification(errorObject)
+    setTimeout(()=>{
+      setNotification(notification.filter(notification=>notification===errorObject))
+    },3000)
+  }
 
   const handleSubmit = (e) => {
     e.preventDefault();
@@ -35,14 +60,23 @@ const App = () => {
           setPersons(persons.map(person => person.id !== PersonToUpdate.id ? person : response.data))
           setNewName("");
           setNewPhone("");
+          successMessage("updated")
+          //console.log(notification)
+        }).catch(error => {
+          errorMessage(newName)
+          console.log(error)
+          setPersons(persons.filter(person => person.name !== newName))
+          setNewName("");
+          setNewPhone("");
         })
       }
     } else {
       commService.create(personObject).then((response) => {
         setPersons(persons.concat(response.data));
-        //console.log(persons)
         setNewName("");
         setNewPhone("");
+        successMessage("added")
+        //console.log(persons)
       });
     }
   };
@@ -77,12 +111,16 @@ const App = () => {
         setPersons(persons.filter(p => p.id !== person.id)),
         //console.log(persons)
       )
+      .catch(error => {
+        console.log(error)
+      })
     }
   }
 
   return (
     <div>
       <h2>Phonebook</h2>
+      <Notification message={notification}/>
       <Filter
         newSearch={newSearch}
         newQuery={newQuery}
