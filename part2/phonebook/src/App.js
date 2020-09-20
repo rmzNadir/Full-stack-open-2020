@@ -24,12 +24,12 @@ const App = () => {
 
   const successMessage = (operation) => {
     const successObject = {
-      content: `${newName} successfully ${operation}!`,
+      content: `${newName} has been successfully ${operation}!`,
       type: "success"
     }
     setNotification(successObject)
     setTimeout(()=>{
-      setNotification(notification.filter(notification=>notification===successObject))
+      setNotification([])
     },3000)
   }
 
@@ -40,27 +40,40 @@ const App = () => {
     }
     setNotification(errorObject)
     setTimeout(()=>{
-      setNotification(notification.filter(notification=>notification===errorObject))
+      setNotification([])
     },3000)
   }
 
   const handleSubmit = (e) => {
     e.preventDefault();
 
-    const personObject = {
-      name: newName,
-      phone: newPhone,
-    };
+ 
+
+    if(persons.find((person) => person.phone === newPhone )){
+      if(window.confirm(`${newPhone} is already assigned, try something else!`)){
+        return
+      }
+      return
+    }
 
     if (persons.find((person) => person.name === newName)) {
-      const PersonToUpdate = persons.find((person) => person.name === newName)
+     
+    let PersonToUpdate = persons.find((person) => person.name === newName)
+
+    const updatedPersonObject = {
+      name: newName,
+      phone: newPhone,
+      id: PersonToUpdate.id || null,
+    };
       //console.log(PersonToUpdate)
       if(window.confirm(`${newName} is already added to phonebook, replace the old number with a new one?`)){
-        commService.update(PersonToUpdate.id,personObject).then(response => {
+        commService.update(PersonToUpdate.id,updatedPersonObject).then(response => {
+          //console.log(response)
           setPersons(persons.map(person => person.id !== PersonToUpdate.id ? person : response.data))
           setNewName("");
           setNewPhone("");
           successMessage("updated")
+          //console.log(persons)
           //console.log(notification)
         }).catch(error => {
           errorMessage(newName)
@@ -71,10 +84,15 @@ const App = () => {
         })
       }
     } else {
-      commService.create(personObject).then((response) => {
-        setPersons(persons.concat(response.data));
+      const newPersonObject = {
+        name: newName,
+        phone: newPhone,
+      };
+      commService.create(newPersonObject).then((response) => {
+        //console.log(response)
         setNewName("");
         setNewPhone("");
+        setPersons(persons.concat(response.data));
         successMessage("added")
         //console.log(persons)
       });
