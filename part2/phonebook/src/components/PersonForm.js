@@ -5,8 +5,8 @@ const PersonForm = (props) => {
   return (
     <form onSubmit={handleSubmit}>
       <div>
-        Name: <input value={newName} onChange={handleNameInput} />
-        &nbsp; Number: <input value={newPhone} onChange={handlePhoneInput} /> <button type="submit">add</button>
+        Name: <input value={newName} onChange={handleNameInput} placeholder='Insert a full name'/>
+        &nbsp; Number: <input value={newPhone} onChange={handlePhoneInput} placeholder='Insert a phone number' /> <button type="submit">add</button>
       </div>
     </form>
   );

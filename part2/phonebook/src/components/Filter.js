@@ -5,7 +5,7 @@ const Filter = (props) => {
     const {newSearch,handleSearchInput,newQuery} = props
     return (
         <div>
-            Search a person: <input value={newSearch} onChange={handleSearchInput}/>
+            Search a person: <input value={newSearch} onChange={handleSearchInput} placeholder='Insert first or last name'/>
             <br/>
             <br/>
             {newQuery.map(person=><Person key={person.name} person={person}/>)}
