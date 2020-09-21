@@ -68,7 +68,7 @@ const App = () => {
       //console.log(PersonToUpdate)
       if(window.confirm(`${newName} is already added to phonebook, replace the old number with a new one?`)){
         commService.update(PersonToUpdate.id,updatedPersonObject).then(response => {
-          //console.log(response)
+          //console.log(response.data)
           setPersons(persons.map(person => person.id !== PersonToUpdate.id ? person : response.data))
           setNewName("");
           setNewPhone("");
