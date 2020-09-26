@@ -44,10 +44,19 @@ const App = () => {
     },3000)
   }
 
+  const ValidationError = (err) => {
+    const errorObject = {
+      content: err,
+      type: "error"
+    }
+    setNotification(errorObject)
+    setTimeout(()=>{
+      setNotification([])
+    },10000)
+  }
+
   const handleSubmit = (e) => {
     e.preventDefault();
-
- 
 
     if(persons.find((person) => person.phone === newPhone )){
       if(window.confirm(`${newPhone} is already assigned, try something else!`)){
@@ -68,19 +77,26 @@ const App = () => {
       //console.log(PersonToUpdate)
       if(window.confirm(`${newName} is already added to phonebook, replace the old number with a new one?`)){
         commService.update(PersonToUpdate.id,updatedPersonObject).then(response => {
-          //console.log(response.data)
+          //console.log(response)
           setPersons(persons.map(person => person.id !== PersonToUpdate.id ? person : response.data))
           setNewName("");
           setNewPhone("");
           successMessage("updated")
           //console.log(persons)
           //console.log(notification)
-        }).catch(error => {
-          errorMessage(newName)
-          console.log(error)
-          setPersons(persons.filter(person => person.name !== newName))
-          setNewName("");
-          setNewPhone("");
+        }).catch(err => {
+          if(err.response.data.errorName==='ValidationError'){
+            ValidationError(err.response.data.error)
+            //console.log(err.response.data.errorName)
+          }else{
+            errorMessage(newName)
+            //console.log(err)
+            setPersons(persons.filter(person => person.name !== newName))
+            setNewName("");
+            setNewPhone("");
+          }
+          
+
         })
       }
     } else {
@@ -95,7 +111,10 @@ const App = () => {
         setPersons(persons.concat(response.data));
         successMessage("added")
         //console.log(persons)
-      });
+      }).catch(err => {
+        //console.log(err.response.data)
+        ValidationError(err.response.data.error)
+      })
     }
   };
 
